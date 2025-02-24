@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 from ROOT import TLorentzVector
 
 class Particle:
-    def __init__(self,pdgid,spin,px=0,py=0,pz=0,energy=0,mass=0):
+    def __init__(self,pdgid,spin,px=0,py=0,pz=0,energy=0,mass=0, proper_lifetime=0):
         self.pdgid=pdgid
         self.px=px
         self.py=py
@@ -10,6 +10,7 @@ class Particle:
         self.energy=energy
         self.mass=mass
         self.spin=spin    
+        self.proper_lifetime = proper_lifetime
     
     @property
     def p4(self):
@@ -79,8 +80,19 @@ def readLHEF(name):
             e=Event(num_part)
             for i in range(1,num_part+1):
                 part_data=lines[i].strip().split()
-                p=Particle(int(part_data[0]), float(part_data[12]), float(part_data[6]), float(part_data[7]), float(part_data[8]), float(part_data[9]), float(part_data[10]))
+                p=Particle(int(part_data[0]), float(part_data[12]), float(part_data[6]), float(part_data[7]), float(part_data[8]), float(part_data[9]), float(part_data[10]), float(part_data[11]))
                 e.__addParticle__(p)
             lhefdata.__addEvent__(e)
     
     return lhefdata
+
+if __name__ == "__main__":
+    import argparse
+    import IPython
+
+    parser = argparse.ArgumentParser(description="Read LHEF file")
+    parser.add_argument("--filename", type=str, help="Path to the LHEF file")
+    args = parser.parse_args()
+
+    events = readLHEF(args.filename)
+    IPython.embed(header="Starting interactive session. Access events via `events`")
